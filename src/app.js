@@ -66,7 +66,7 @@ app.get('/weather', (req, res) => {
             });
         });
     });
-});+
+});
 
 app.get('/products', (req, res) => {
     if(!req.query.search){
