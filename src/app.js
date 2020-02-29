@@ -1,6 +1,8 @@
 const path = require('path');
 const express = require('express');
 const hbs = require('hbs');
+const geocode = require('./utils/geocode');
+const forecast = require('./utils/forecast');
 
 const app = express();
 const publicDirectoryPath = path.join(__dirname, '../public');
@@ -41,12 +43,32 @@ app.get('/weather', (req, res) => {
         });
     }
 
-    res.send({
-        forecast: 'string',
-        location: 'string',
-        address: req.query.address
+    const { query: { address } } = req;
+
+    geocode(address, (error, geocodeData) => {
+        if(error){
+            return res.send({
+                error
+            });
+        }
+
+        const { latitude, longitude, location } = geocodeData;
+
+        forecast(latitude, longitude, (error, forecastData) => {
+            if(error){
+                return res.send({
+                    error
+                });
+            }
+
+            res.send({
+                forecast: forecastData,
+                location,
+                address
+            });
+        });
     });
-});
+});+
 
 app.get('/products', (req, res) => {
     if(!req.query.search){
